@@ -6,5 +6,7 @@ import (
 )
 
 func RouteInit(r *fiber.App) {
-	r.Get("/user", controllers.UserControllerRead)
+	r.Get("/user", controllers.UserControllerGetAll)
+	r.Get("/user/:id", controllers.UserControllerGetById)
+	r.Post("/user", controllers.UserControllerCreate)
 }

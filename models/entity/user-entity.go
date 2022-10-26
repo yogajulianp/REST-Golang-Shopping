@@ -6,8 +6,7 @@ import(
 )
 
 type User struct {
-	ID        	uint     `gorm:"primaryKey"`
-	Id       	int     `form:"id" json:"id" validate:"required"`
+	Id       	uint      `form:"id" json:"id" gorm:"primaryKey"`
 	Name     	string  `form:"name" json:"name" validate:"required"`
 	Email	 	string  `form:"email" json:"email" validate:"required"`
 	Username	string    `form:"username" json:"username" validate:"required"`
@@ -17,3 +16,12 @@ type User struct {
  	DeletedAt gorm.DeletedAt `json:"deleted_at" gorm:"index"`
 	
 }
+
+// // CRUD
+// func CreateUser(db *gorm.DB, newUser *User) (err error) {
+// 	err = db.Create(newUser).Error
+// 	if err != nil {
+// 		return err
+// 	}
+// 	return nil
+// }
