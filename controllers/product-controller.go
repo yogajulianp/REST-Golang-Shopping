@@ -14,14 +14,14 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-// func UserControllerGetAll(c *fiber.Ctx) error  {
-// 	var users []entity.User
-// 	result := database.Db.Find(&users)
-// 	if result.Error != nil {
-// 		log.Println(result.Error)
-// 	}
-// 	return c.JSON(users)
-// }
+func ProductControllerGetAll(c *fiber.Ctx) error  {
+	var products []entity.Product
+	result := database.Db.Find(&products)
+	if result.Error != nil {
+		log.Println(result.Error)
+	}
+	return c.JSON(products)
+}
 
 func ProductControllerCreate(c *fiber.Ctx) error {
 	//product := new(entity.Product)
@@ -58,6 +58,8 @@ func ProductControllerCreate(c *fiber.Ctx) error {
 		Image	: filename,
 		Tag		: product.Tag,
 		Description: product.Description,
+		Quantity: product.Quantity,
+		Price : product.Price,
 	}
 
 	
@@ -72,4 +74,116 @@ func ProductControllerCreate(c *fiber.Ctx) error {
 		"message" : "success",
 		"data": newProduct,
 	})
+}
+
+func ProductControllerGetById(c *fiber.Ctx) error {
+	productId := c.Params("id")
+	
+	fmt.Println(productId)
+
+	var product entity.Product
+	err := database.Db.Where("id = ?", productId).First(&product).Error
+	
+	if err != nil {
+		return c.Status(404).JSON(fiber.Map{
+			"message": "user not found",
+		})
+	}
+	
+	//if succeed
+	return c.JSON(fiber.Map{
+		"message" : "success",
+		"data": product,
+	})
+}
+
+
+func ProductControllerUpdate(c *fiber.Ctx) error {
+	productId := c.Params("id")
+
+	var product entity.Product
+	err := database.Db.Where("id = ?", productId).First(&product).Error
+	if err != nil {
+		return c.Status(404).JSON(fiber.Map{
+			"message": "user not found",
+		})
+	}
+
+	var productRequest entity.Product
+	if err := c.BodyParser(&productRequest); err != nil {
+		return c.Status(400).JSON(fiber.Map{
+			"message": "bad request",
+		})
+	}
+
+	//validasi request
+	validate := validator.New()
+	errValidate := validate.Struct(product)
+	if errValidate != nil {
+		return c.Status(400).JSON(fiber.Map{
+			"message": "failed",
+			"error": errValidate.Error(),
+		})
+	}
+
+	// handle file
+	file, errFile := c.FormFile("image")
+	if errFile != nil {
+		log.Println("Error File : ", errFile)
+	}
+
+	var filename string = file.Filename
+	errSaveFile := c.SaveFile(file, fmt.Sprintf("./public/images/%s", filename))
+	if errSaveFile != nil {
+		log.Println("Failed to save file into public images")
+	}
+
+	
+	
+	//Update User Data  
+	product.Title = productRequest.Title
+	productRequest.Image = filename
+	product.Image = productRequest.Image
+	product.Tag = productRequest.Tag
+	product.Description = productRequest.Description
+	product.Quantity = productRequest.Quantity
+	product.Price = productRequest.Price
+
+	errUpdate := database.Db.Save(&product).Error
+	if errUpdate != nil {
+		return c.Status(500).JSON(fiber.Map{
+			"message" : "server error",
+		})
+	}
+
+	//if succeed
+	return c.JSON(fiber.Map{
+		"message" : "success data has been updated",
+		"data": product,
+	})
+
+}
+
+func ProductControllerDelete(c *fiber.Ctx) error {
+	productId := c.Params("id")
+
+	var product entity.Product
+	err := database.Db.Debug().Where("id = ?", productId).First(&product).Error
+	if err != nil {
+		return c.Status(404).JSON(fiber.Map{
+			"message": "user not found",
+		})
+	}
+
+	errDelete := database.Db.Debug().Delete(&product).Error
+	if errDelete != nil {
+		return c.Status(500).JSON(fiber.Map{
+			"message" : "server error",
+		})
+	}
+
+		//if succeed
+		return c.JSON(fiber.Map{
+			"message" : "user has been deleted",
+		})
 }

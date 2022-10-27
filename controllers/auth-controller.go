@@ -10,7 +10,7 @@ import (
 	"fmt"
 )
 
-func Login(c *fiber.Ctx) error {
+func AuthLogin(c *fiber.Ctx) error {
 	loginRequest := new(request.LoginRequest)
 	if err := c.BodyParser(&loginRequest); err != nil {
 		return err

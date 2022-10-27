@@ -14,16 +14,9 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-func UserControllerGetAll(c *fiber.Ctx) error  {
-	var users []entity.User
-	result := database.Db.Find(&users)
-	if result.Error != nil {
-		log.Println(result.Error)
-	}
-	return c.JSON(users)
-}
 
-func UserControllerCreate(c *fiber.Ctx) error {
+
+func UserControllerRegister(c *fiber.Ctx) error {
 	user := new(entity.User)
 	if err := c.BodyParser(&user); err != nil {
 		return err
@@ -67,6 +60,15 @@ func UserControllerCreate(c *fiber.Ctx) error {
 	})
 }
 
+func UserControllerGetAll(c *fiber.Ctx) error  {
+	var users []entity.User
+	result := database.Db.Find(&users)
+	if result.Error != nil {
+		log.Println(result.Error)
+	}
+	return c.JSON(users)
+}
+
 func UserControllerGetById(c *fiber.Ctx) error {
 	userId := c.Params("id")
 	//userId,_ := strconv.Atoi(Id)
@@ -86,7 +88,6 @@ func UserControllerGetById(c *fiber.Ctx) error {
 		"message" : "success",
 		"data": user,
 	})
-
 }
 
 func UserControllerUpdate(c *fiber.Ctx) error {
