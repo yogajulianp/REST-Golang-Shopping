@@ -25,6 +25,8 @@ func UserControllerCreate(c *fiber.Ctx) error {
 	if err := c.BodyParser(&user); err != nil {
 		return err
 	}
+
+	//validasi request
 	validate := validator.New()
 	errValidate := validate.Struct(user)
 	if errValidate != nil {
@@ -33,6 +35,7 @@ func UserControllerCreate(c *fiber.Ctx) error {
 			"error": errValidate.Error(),
 		})
 	}
+	
 	newUser := entity.User{
 		Name    : user.Name,
 		Email	: user.Email,

@@ -1,8 +1,6 @@
 package request
 
-import (
-	
-)
+
 
 type UserCreateRequest struct {
 	Name     	string  `form:"name" json:"name" validate:"required"`
