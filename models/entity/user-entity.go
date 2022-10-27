@@ -16,12 +16,3 @@ type User struct {
  	DeletedAt gorm.DeletedAt `json:"deleted_at" gorm:"index"`
 	
 }
-
-// // CRUD
-// func CreateUser(db *gorm.DB, newUser *User) (err error) {
-// 	err = db.Create(newUser).Error
-// 	if err != nil {
-// 		return err
-// 	}
-// 	return nil
-// }

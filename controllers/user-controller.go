@@ -4,10 +4,13 @@ import (
 	//"strconv"
 	"devtech/rest-golang-shopping/database"
 	"devtech/rest-golang-shopping/models/entity"
+	"devtech/rest-golang-shopping/utils"
+
 	//"devtech/rest-golang-shopping/models/request"
-	"github.com/go-playground/validator/v10"
-	"log"
 	"fmt"
+	"log"
+
+	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -35,13 +38,22 @@ func UserControllerCreate(c *fiber.Ctx) error {
 			"error": errValidate.Error(),
 		})
 	}
-	
+
 	newUser := entity.User{
 		Name    : user.Name,
 		Email	: user.Email,
 		Username : user.Username,
-		Password : user.Password,
 	}
+
+	HashPassword, err := utils.HashingPassword(user.Password)
+	if err != nil {
+		log.Println(err)
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"message": "internal server error",
+		})
+	}
+	newUser.Password = HashPassword
+
 	errCreateUser := database.Db.Create(&newUser).Error
 	if errCreateUser != nil {
 		return c.Status(500).JSON(fiber.Map{
