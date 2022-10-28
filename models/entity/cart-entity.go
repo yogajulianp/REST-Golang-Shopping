@@ -12,8 +12,8 @@ type Cart struct {
 	Quantity	int		    `form:"quantity" json:"quantity" validate:"required"`
 	Total		float32     `form:"total" json:"total" validate:"required"`
 	Status		string	    `form:"status" json:"status" validate:"required"`
-	User      	[]User		`json:"user_id" gorm:"many2many:UserId;foreignKey:UserId"`
-	Product     []Product	`json:"product_id" gorm:"many2many:ProductId;foreignKey:ProductId"`
+	Product 	Product 	`gorm:"foreignkey:ProductId;references:Id"`
+	User 		User 		`gorm:"foreignkey:UserId;references:Id"`
 	CreatedAt time.Time		`json:"created_at"`
   	UpdatedAt time.Time		`json:"updated_at"`
  	DeletedAt gorm.DeletedAt `json:"deleted_at" gorm:"index"`	
@@ -28,14 +28,14 @@ func AddnewCart(db *gorm.DB, item *Cart) (err error) {
 	return nil
 }
 func GetCartbyUser(db *gorm.DB, cart *[]Cart, id int)(err error) {
-	err = db.Where(&Cart {UserId: id, Status: "process"}).Preload("User").Preload("Product").Find(cart).Error
+	err = db.Where(&Cart {UserId: id, Status: "process"}).Preload("User").Preload("Product").Find(&cart).Error
 	if err != nil {
 		return err
 	}
 	return nil
 }
 func ListCartbyId(db *gorm.DB, cart *Cart, productid int, userid int)(err error) {
-	err = db.Where(&Cart {ProductId: productid, UserId: userid, Status: "process"}).Preload("User").Preload("Product").First(cart).Error
+	err = db.Where(&Cart {ProductId: productid, UserId: userid, Status: "process"}).Preload("User").Preload("Product").First(&cart).Error
 	if err != nil {
 		return err
 	}

@@ -11,6 +11,7 @@ type User struct {
 	Email	 	string  `form:"email" json:"email" validate:"required"`
 	Username	string    `form:"username" json:"username" validate:"required"`
 	Password    string	`form:"password" json:"password" validate:"required"`
+	Cart        []Cart    
 	CreatedAt time.Time		`json:"created_at"`
   	UpdatedAt time.Time		`json:"updated_at"`
  	DeletedAt gorm.DeletedAt `json:"deleted_at" gorm:"index"`

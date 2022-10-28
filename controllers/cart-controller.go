@@ -38,6 +38,7 @@ func (controller *CartController) CartControllerGet(c *fiber.Ctx) error  {
 	if errResult != nil {
 		return c.Status(500).JSON(fiber.Map{
 			"message" : "server error, tidak bisa get cart",
+			"error": errResult,
 		})
 	}
 	return c.JSON(cart)
@@ -45,28 +46,29 @@ func (controller *CartController) CartControllerGet(c *fiber.Ctx) error  {
 
 func (controller *CartController) CartControllerRequestOrder(c *fiber.Ctx) error {
 	userid := c.Query("userid")
-	userId,_ := strconv.Atoi(userid)
+	userID,_ := strconv.Atoi(userid)
 
 	productid := c.Query("productid")
-	productId,_ := strconv.Atoi(productid)
+	productID,_ := strconv.Atoi(productid)
 
-	
+	var addCart entity.Cart
 	var product entity.Product
 	var cart entity.Cart
-	var addCart entity.Cart
 
 	//get product by id
-	errGetProductId := database.Db.Where("id = ?", productId).First(&product).Error
+	errGetProductId := database.Db.Where("id = ?", productID).First(&product).Error
 	if errGetProductId != nil {
 		return c.Status(404).JSON(fiber.Map{
-			"message": "product not found",
+			"message": "product not found, tidak bisa ambil produk by id", 
+			"error" : errGetProductId,
 		})
 	}
 
-	errCart := entity.ListCartbyId(controller.Db, &cart, productId, userId)
+	errCart := entity.ListCartbyId(controller.Db, &cart, productID, userID)
 	if errCart != nil {
 		return c.Status(500).JSON(fiber.Map{
 			"message" : "server error, tidak muncul di list",
+			"error" : errCart,
 		})
 	}
 
@@ -86,8 +88,8 @@ func (controller *CartController) CartControllerRequestOrder(c *fiber.Ctx) error
 			"data"		:    cart,
 		})
 	} else {
-		addCart.UserId = userId
-		addCart.ProductId = productId
+		addCart.UserId = userID
+		addCart.ProductId = productID
 		addCart.Quantity = 1
 		cart.Total = float32(cart.Quantity)*product.Price
 
