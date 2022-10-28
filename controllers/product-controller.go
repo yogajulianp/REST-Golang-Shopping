@@ -83,7 +83,6 @@ func ProductControllerGetById(c *fiber.Ctx) error {
 
 	var product entity.Product
 	err := database.Db.Where("id = ?", productId).First(&product).Error
-	
 	if err != nil {
 		return c.Status(404).JSON(fiber.Map{
 			"message": "user not found",

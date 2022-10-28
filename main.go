@@ -12,6 +12,7 @@ func main() {
 	// initial database
 	database.InitDb()
 	migration.RunMigration()
+	
 
 	app := fiber.New()
 

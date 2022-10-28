@@ -10,6 +10,7 @@ import (
 
 
 func RouteInit(r *fiber.App) {
+	cartController := controllers.InitCartController()
 	r.Static("/public", config.ProjectRootPath+ "/public/asset")
 
 
@@ -26,4 +27,7 @@ func RouteInit(r *fiber.App) {
 	r.Get("/product/:id", controllers.ProductControllerGetById)
 	r.Put("/product/:id", controllers.ProductControllerUpdate)
 	r.Delete("/product/:id", controllers.ProductControllerDelete)
+
+	r.Get("/cart", cartController.CartControllerGet)
+	r.Post("/cart", cartController.CartControllerRequestOrder)
 }
