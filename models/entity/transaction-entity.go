@@ -6,12 +6,12 @@ import(
 )
 
 type Transaction struct {
-	Id       	uint      	`form:"id" json:"id" gorm:"primaryKey"`
+	ID       	int      	`form:"id" json:"id" gorm:"primaryKey"`
 	UserId     	int  		`form:"userid" json:"userid" validate:"required"`
 	CartId		int  		`form:"cardid" json:"cardid" validate:"required"`
 	Status		string	    `form:"status" json:"status" validate:"required"`
-	User      	User		`gorm:"-"`
-	Product     Product		`gorm:"-"`
+	User      	User		
+	Product     Product		
 	CreatedAt time.Time		`json:"created_at"`
   	UpdatedAt time.Time		`json:"updated_at"`
  	DeletedAt gorm.DeletedAt `json:"deleted_at" gorm:"index"`	

@@ -1,110 +1,87 @@
 package controllers
 
 import (
-	"gorm.io/gorm"
-	//"strconv"
 	"devtech/rest-golang-shopping/database"
 	"devtech/rest-golang-shopping/models/entity"
 	//"devtech/rest-golang-shopping/utils"
 
 	//"devtech/rest-golang-shopping/models/request"
-	"strconv"
-	// "fmt"
+	
+	"log"
 	
 
-	//"github.com/go-playground/validator/v10"
+	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
 )
 
-type CartController struct {
-	// declare variables
-	Db *gorm.DB
-}
 
-func InitCartController() *CartController {
-	db := database.InitDb()
-	// gorm
-	db.AutoMigrate(&entity.Cart{})
+func CreateCart(c *fiber.Ctx) error {
+	carts := new(entity.Cart)
+	if err := c.BodyParser(&carts); err != nil {
+		return err
+	}
 
-	return &CartController{Db: db}
-}
-
-func (controller *CartController) CartControllerGet(c *fiber.Ctx) error  {
-	userid := c.Query("userid")
-	userId,_ := strconv.Atoi(userid)
-
-	var cart []entity.Cart
-	errResult := entity.GetCartbyUser(controller.Db, &cart, userId)
-	if errResult != nil {
-		return c.Status(500).JSON(fiber.Map{
-			"message" : "server error, tidak bisa get cart",
-			"error": errResult,
+	//validasi request
+	validate := validator.New()
+	errValidate := validate.Struct(carts)
+	if errValidate != nil {
+		return c.Status(400).JSON(fiber.Map{
+			"message": "failed",
+			"error": errValidate.Error(),
 		})
 	}
-	return c.JSON(cart)
-}
 
-func (controller *CartController) CartControllerRequestOrder(c *fiber.Ctx) error {
-	userid := c.Query("userid")
-	userID,_ := strconv.Atoi(userid)
+	if carts.ProductID == 0 {
+		return c.Status(400).JSON(fiber.Map{
+			"err": "product_id is required",
+		})
+	}
 
-	productid := c.Query("productid")
-	productID,_ := strconv.Atoi(productid)
-
-	var addCart entity.Cart
 	var product entity.Product
-	var cart entity.Cart
-
-	//get product by id
-	errGetProductId := database.Db.Where("id = ?", productID).First(&product).Error
-	if errGetProductId != nil {
-		return c.Status(404).JSON(fiber.Map{
-			"message": "product not found, tidak bisa ambil produk by id", 
-			"error" : errGetProductId,
-		})
+	newCart := entity.Cart{
+		Quantity : carts.Quantity,
+		Total : float32(carts.Quantity)*product.Price,
+		Status: "process",
+		UserID: carts.UserID,
+		ProductID: carts.ProductID,
 	}
 
-	errCart := entity.ListCartbyId(controller.Db, &cart, productID, userID)
-	if errCart != nil {
+	errCreatePost := database.Db.Debug().Create(&newCart).Error
+	if errCreatePost != nil {
 		return c.Status(500).JSON(fiber.Map{
-			"message" : "server error, tidak muncul di list",
-			"error" : errCart,
+			"message": "gagal melakukan order cart" + errCreatePost.Error(),
 		})
 	}
 
-	if cart.Id != 0 {
-		cart.Quantity = cart.Quantity + 1
-		cart.Total = cart.Total + product.Price
+	// for _, productID := range newCart.ProductID {
+	// 	cartProduct := new(entity.CartProduct)
+	// 	cartProduct.CartID = newCart.ID
+	// 	cartProduct.ProductID = productID
+	// 	database.Db.Create(&cartProduct)
+	// }
 
-		errUpdate := database.Db.Save(&cart).Error
-		if errUpdate != nil {
-			return c.Status(500).JSON(fiber.Map{
-				"message" : "server error",
-			})
-		}
-		//if succeed
-		return c.JSON(fiber.Map{
-			"message"	: "success",
-			"data"		:    cart,
-		})
-	} else {
-		addCart.UserId = userID
-		addCart.ProductId = productID
-		addCart.Quantity = 1
-		cart.Total = float32(cart.Quantity)*product.Price
+	
+		cartProduct := new(entity.CartProduct)
+		cartProduct.CartID = newCart.ID
+		cartProduct.ProductID = newCart.ProductID
+		database.Db.Create(&cartProduct)
+	
 
-		errAddCart := database.Db.Create(&addCart).Error
-		if errAddCart != nil {
-		return c.Status(500).JSON(fiber.Map{
-			"message": "gagal menyimpan data",
-		})
-		}
-		//if succeed
-		return c.JSON(fiber.Map{
-			"message": "success",
-			"data":    addCart,
-		})
 
+	//if succeed
+	return c.JSON(fiber.Map{
+		"message" : "success order carts",
+		"carts": newCart,
+	})
+}
+
+func GetAllCart(c *fiber.Ctx) error  {
+	var carts []entity.CartResponse
+	result := database.Db.Preload("User").Preload("Product").Find(&carts)
+	if result.Error != nil {
+		log.Println(result.Error)
 	}
-
+	return c.JSON(fiber.Map{
+		"carts": carts,
+	})
 }
