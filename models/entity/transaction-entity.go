@@ -10,7 +10,7 @@ type Transaction struct {
 	Status		string	    `form:"status" json:"status" `
 	UserID     	int  		`form:"user_id" json:"user_id" validate:"required"`
 	User      	[]UserResponse		`json:"users" gorm:"many2many:transaction_users"`
-	Cart   	[]CartResponse	`json:"carts" gorm:"many2many:transaction_carts"`
+	Cart   		[]CartResponse	`json:"carts" gorm:"many2many:transaction_carts"`
 	CartID		int  		`form:"cart_id" json:"cart_id" gorm:"-"`	
 
 	CreatedAt time.Time		`json:"created_at"`
@@ -24,7 +24,8 @@ type TransactionResponse struct {
 	CartID		int  		`form:"cart_id" json:"cart_id" `
 	Status		string	    `form:"status" json:"status" `
 	User      	[]UserResponse		`json:"users" gorm:"many2many:transaction_users;ForeignKey:ID;joinForeignKey:TransactionID;References:ID;joinReferences:UserID" `
-	Cart   		[]CartResponse	`json:"carts" gorm:"many2many:transaction_carts;ForeignKey:ID;joinForeignKey:TransactionID;References:ID;joinReferences:CartID"`	
+	Cart   		[]CartResponse	`json:"carts" gorm:"many2many:transaction_carts;ForeignKey:ID;joinForeignKey:TransactionID;References:ID;joinReferences:CartID"`
+	//Product     []ProductResponse 
 }
 
 func (TransactionResponse) TableName() string {

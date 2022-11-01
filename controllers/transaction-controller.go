@@ -66,8 +66,8 @@ func CreateTransaction(c *fiber.Ctx) error {
 }
 
 func GetAllTransaction(c *fiber.Ctx) error  {
-	var transactions []entity.TransactionResponse
-	result := database.Db.Debug().Preload("User").Preload("Cart").Find(&transactions)
+	var transactions []entity.Transaction
+	result := database.Db.Debug().Preload("User.Username").Preload("Cart.Product").Find(&transactions)
 	if result.Error != nil {
 		log.Println(result.Error)
 	}
