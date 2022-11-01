@@ -33,7 +33,7 @@ func CreateTransaction(c *fiber.Ctx) error {
 
 	if transactions.CartID == 0 {
 		return c.Status(400).JSON(fiber.Map{
-			"err": "card_id is required",
+			"err": "cart_id is required",
 		})
 	}
 
@@ -54,7 +54,7 @@ func CreateTransaction(c *fiber.Ctx) error {
 		transactionCart := new(entity.TransactionCart)
 		transactionCart.TransactionID = newTransaction.ID
 		transactionCart.CartID = newTransaction.CartID
-		database.Db.Create(&transactionCart)
+		database.Db.Debug().Create(&transactionCart)
 	
 
 
@@ -66,12 +66,12 @@ func CreateTransaction(c *fiber.Ctx) error {
 }
 
 func GetAllTransaction(c *fiber.Ctx) error  {
-	var carts []entity.TransactionResponse
-	result := database.Db.Preload("User").Preload("Cart").Find(&carts)
+	var transactions []entity.TransactionResponse
+	result := database.Db.Debug().Preload("User").Preload("Cart").Find(&transactions)
 	if result.Error != nil {
 		log.Println(result.Error)
 	}
 	return c.JSON(fiber.Map{
-		"transaction": carts,
+		"transaction": transactions,
 	})
 }
