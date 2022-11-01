@@ -11,7 +11,9 @@ func RunMigration() {
 	err := database.Db.AutoMigrate(
 		&entity.User{}, 
 		&entity.Product{}, 
-		&entity.Cart{})
+		&entity.Cart{},
+		&entity.Transaction{},
+	)
 	if err != nil {
 		log.Println(err)
 	}

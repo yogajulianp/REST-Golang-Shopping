@@ -7,28 +7,32 @@ import(
 
 type Transaction struct {
 	ID       	int      	`form:"id" json:"id" gorm:"primaryKey"`
-	UserId     	int  		`form:"userid" json:"userid" validate:"required"`
-	CartId		int  		`form:"cardid" json:"cardid" validate:"required"`
 	Status		string	    `form:"status" json:"status" validate:"required"`
-	User      	User		
-	Product     Product		
+	UserID     	int  		`form:"user_id" json:"user_id" validate:"required"`
+	User      	UserResponse		`json:"users" gorm:"many2many:transaction_users"`
+	Cart   	[]CartResponseTransaction	`json:"carts" gorm:"many2many:transaction_carts"`
+	CartID		int  		`form:"card_id" json:"card_id" gorm:"-"`	
+
 	CreatedAt time.Time		`json:"created_at"`
   	UpdatedAt time.Time		`json:"updated_at"`
  	DeletedAt gorm.DeletedAt `json:"deleted_at" gorm:"index"`	
 }
 
-// CRUD
-func AddnewTrasaction(db *gorm.DB, item *Transaction) (err error) {
-	err = db.Create(item).Error
-	if err != nil {
-		return err
-	}
-	return nil
+type TransactionResponse struct {
+	ID       	int      	`form:"id" json:"id"`
+	UserID     	int  		`form:"user_id" json:"user_id" `
+	CartID		int  		`form:"card_id" json:"card_id" `
+	Status		string	    `form:"status" json:"status" `
+	User      	UserResponse		`json:"users" gorm:"many2many:transaction_users;ForeignKey:ID;joinForeignKey:TransactionID;References:ID;joinReferences:UserID" `
+	Cart   	[]CartResponseTransaction	`json:"carts" gorm:"many2many:transaction_carts;ForeignKey:ID;joinForeignKey:TransactionID;References:ID;joinReferences:CartID"`	
 }
-func GetTransaction(db *gorm.DB, transaction *[]Transaction, id int)(err error) {
-	err = db.Where("userId = ? ", id).Preload("Cart").Preload("User").Find(&transaction).Error
-	if err != nil {
-		return err
-	}
-	return nil
+
+func (TransactionResponse) TableName() string {
+	return "transactions"	
 }
+
+type TransactionCart struct {
+	TransactionID int `json:"transaction_id"`
+	CartID int `json:"cart_id"`
+}
+

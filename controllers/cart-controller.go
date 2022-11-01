@@ -53,20 +53,11 @@ func CreateCart(c *fiber.Ctx) error {
 		})
 	}
 
-	// for _, productID := range newCart.ProductID {
-	// 	cartProduct := new(entity.CartProduct)
-	// 	cartProduct.CartID = newCart.ID
-	// 	cartProduct.ProductID = productID
-	// 	database.Db.Create(&cartProduct)
-	// }
-
-	
 		cartProduct := new(entity.CartProduct)
 		cartProduct.CartID = newCart.ID
 		cartProduct.ProductID = newCart.ProductID
 		database.Db.Create(&cartProduct)
 	
-
 
 	//if succeed
 	return c.JSON(fiber.Map{

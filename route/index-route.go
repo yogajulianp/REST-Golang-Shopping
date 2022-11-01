@@ -30,4 +30,7 @@ func RouteInit(r *fiber.App) {
 
 	r.Get("/cart", controllers.GetAllCart)
 	r.Post("/cart", controllers.CreateCart)
+
+	r.Get("/transaction", controllers.GetAllTransaction)
+	r.Post("/transaction", controllers.CreateTransaction)
 }
